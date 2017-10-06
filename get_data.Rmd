@@ -1,0 +1,117 @@
+---
+title: "Measuring Days to First Visit from Original Placement Date"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The following code makes use of data from the `oliver_replica` database to extract the average number of days between a child's original placement date, and the date of their first visit.
+
+These data are almost certainly an overestimate of the **true** average value. The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties. 
+
+```{r code, warning=FALSE, message=FALSE}
+# assumes a connection to oliver_replica named "con"
+source('~/r_repos/ssdx/R/establish_and_load_db_con.R')
+library(lubridate)
+library(tidyverse)
+library(DBI)
+
+setwd("~/r_repos/portal_redux")
+
+establish_and_load_db_con()
+
+conn <- con 
+
+DBI::dbSendQuery(conn, dbplyr::build_sql("SET search_path TO ", 'staging'))
+
+service_referrals <- tbl(conn, sql("SELECT *
+                                   , json_array_elements(\"childDetails\") ->> \'childOpd\' AS child_placement_date 
+                                   FROM staging.\"ServiceReferrals\"")) %>%
+  filter(isCurrentVersion == TRUE,
+         is.na(deletedAt),
+         !is.na(id),
+         !is.na(child_placement_date)) %>%
+  as_data_frame() %>%
+  mutate(child_placement_date = as.Date(child_placement_date, format = "%m/%d/%Y")) %>%
+  group_by(caseNumber) %>%
+  summarise(first_placement_date = min(child_placement_date)) %>%
+  filter(lubridate::year(first_placement_date) >= 2016)
+
+visit_reports <- tbl(conn, "VisitReports") %>%
+  filter(isCurrentVersion == TRUE,
+         is.na(deletedAt),
+         !is.na(serviceReferralId),
+         !is.na(date)) %>%
+  group_by(caseNumber) %>%
+  summarise(first_visit_date = min(date)) %>%
+  as_data_frame()
+
+visit_reports_all <- tbl(conn, "VisitReports") %>%
+  filter(isCurrentVersion == TRUE,
+         is.na(deletedAt),
+         !is.na(serviceReferralId),
+         !is.na(date)) %>%
+  select(date, visitLocationCounty, caseNumber) %>%
+  as_data_frame()
+
+first_visit_reports <- inner_join(service_referrals
+           ,visit_reports
+           ,by = c("caseNumber")) %>%
+  mutate(days_in_placement = as.numeric(first_visit_date - first_placement_date)) %>%
+  filter(days_in_placement >= 0) %>%
+  arrange(caseNumber, first_placement_date) %>%
+  distinct(caseNumber, .keep_all = TRUE)  
+
+
+first_visit_and_locale <- inner_join(visit_reports_all
+           ,first_visit_reports, by = c("date" = "first_visit_date", "caseNumber")) %>%
+  select(days_in_placement, jurisdiction = visitLocationCounty) %>%
+  mutate(jurisdiction = ifelse(jurisdiction == "Curry/Roosevelt", "Klickitat", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "grant", "Grant", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Benton County", "Benton", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Stevens County", "Stevens", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "99201", "Spokane", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Kitittas", "Kittitas", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "UNited States", NA, jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "whitman", "Walla Walla", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Pima", "King", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Newport", "Pend Oreille", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Cherokee", "Okanogan", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Moses lake", "Grant", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "WHITMAN", "Whitman", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Kittittas", "Kittitas", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "SNohomish", "Snohomish", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Spokane County", "Spokane", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Lynnwood", "Snohomish", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "AdamsCounty", "Adams", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Moses lake", "Grant", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "stevens", "Stevens", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Pend Oreille County", "Pend Oreille", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Pend O'Reille", "Pend Oreille", jurisdiction)    
+         ,jurisdiction = ifelse(jurisdiction == "king", "King", jurisdiction)  
+         ,jurisdiction = ifelse(jurisdiction == "Fraklin", "Franklin", jurisdiction)    
+         ,jurisdiction = ifelse(jurisdiction == "SPOKANE", "Spokane", jurisdiction)   
+         ,jurisdiction = ifelse(is.na(jurisdiction), "Unknown", jurisdiction)   
+  ) 
+
+# a little code to check for bad county names 
+# should be automated and regexified if this ever becomes a prod measurement
+
+# good_county_names <- read.csv(file = "https://raw.githubusercontent.com/hadley/data-counties/master/county-fips.csv"
+#                               ,header = TRUE
+#                               ,sep = ",") %>%
+#   filter(state == "WA")
+
+# anti_join(select(first_visit_and_locale, county = jurisdiction)
+#           ,good_county_names) %>%
+#   distinct()
+
+first_visit_and_locale %>% feather::write_feather("days_in_placement")
+
+```
+
+The file save here, is used to power the rest of the shiny application. 
