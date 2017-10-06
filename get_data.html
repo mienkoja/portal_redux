@@ -128,7 +128,7 @@ library(lubridate)
 library(tidyverse)
 library(DBI)
 
-setwd(&quot;~/r_repos/portal_redux&quot;)
+#setwd(&quot;~/r_repos/portal_redux&quot;)
 
 establish_and_load_db_con()
 
@@ -219,7 +219,7 @@ first_visit_and_locale &lt;- inner_join(visit_reports_all
 #   distinct()
 
 first_visit_and_locale %&gt;% feather::write_feather(&quot;days_in_placement&quot;)</code></pre>
-<p>The file save here, is used to power the rest of the shiny application.</p>
+<p>The file save here, is used to power the rest of the shiny application. A link to the entire repo is as follows: <a href="https://github.com/mienkoja/portal_redux" class="uri">https://github.com/mienkoja/portal_redux</a></p>
 
 
 

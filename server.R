@@ -1,5 +1,6 @@
 library(shinydashboard)
 library(ggplot2)
+library(tidyverse)
 
 server <- function(input, output) {
   dat <- feather::read_feather("days_in_placement")
