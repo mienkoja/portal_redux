@@ -121,20 +121,8 @@ $(document).ready(function () {
 
 
 <p>The following code makes use of data from the <code>oliver_replica</code> database to extract the average number of days between a child’s original placement date, and the date of their first visit.</p>
-<p>These data are almost certainly an overestimate of the <strong>true</strong> average value. The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties.</p>
-<pre class="r"><code># assumes a connection to oliver_replica named &quot;con&quot;
-source('~/r_repos/ssdx/R/establish_and_load_db_con.R')
-library(lubridate)
-library(tidyverse)
-library(DBI)
-
-#setwd(&quot;~/r_repos/portal_redux&quot;)
-
-establish_and_load_db_con()
-
-conn &lt;- con 
-
-DBI::dbSendQuery(conn, dbplyr::build_sql(&quot;SET search_path TO &quot;, 'staging'))</code></pre>
+<p>These data are almost certainly an overestimate of the <strong>true</strong> average value. The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties. Values less than 90 days should also be considered more trustworthy than values greater than 90 days. As such, the default values for the tool are for periods less than 90 days and in Spokane County.</p>
+<p>The assumption of this script is that there is a connection named <code>conn</code> to the <code>oliver_replica</code> database.</p>
 <pre><code>## &lt;PostgreSQLResult&gt;</code></pre>
 <pre class="r"><code>service_referrals &lt;- tbl(conn, sql(&quot;SELECT *
                                    , json_array_elements(\&quot;childDetails\&quot;) -&gt;&gt; \'childOpd\' AS child_placement_date 
@@ -145,7 +133,7 @@ DBI::dbSendQuery(conn, dbplyr::build_sql(&quot;SET search_path TO &quot;, 'stagi
          !is.na(child_placement_date)) %&gt;%
   as_data_frame() %&gt;%
   mutate(child_placement_date = as.Date(child_placement_date, format = &quot;%m/%d/%Y&quot;)) %&gt;%
-  group_by(caseNumber) %&gt;%
+  group_by(caseNumber, id) %&gt;%
   summarise(first_placement_date = min(child_placement_date)) %&gt;%
   filter(lubridate::year(first_placement_date) &gt;= 2016)
 
@@ -154,7 +142,7 @@ visit_reports &lt;- tbl(conn, &quot;VisitReports&quot;) %&gt;%
          is.na(deletedAt),
          !is.na(serviceReferralId),
          !is.na(date)) %&gt;%
-  group_by(caseNumber) %&gt;%
+  group_by(caseNumber, serviceReferralId) %&gt;%
   summarise(first_visit_date = min(date)) %&gt;%
   as_data_frame()
 
@@ -168,7 +156,7 @@ visit_reports_all &lt;- tbl(conn, &quot;VisitReports&quot;) %&gt;%
 
 first_visit_reports &lt;- inner_join(service_referrals
            ,visit_reports
-           ,by = c(&quot;caseNumber&quot;)) %&gt;%
+           ,by = c(&quot;caseNumber&quot;, &quot;id&quot; = &quot;serviceReferralId&quot;)) %&gt;%
   mutate(days_in_placement = as.numeric(first_visit_date - first_placement_date)) %&gt;%
   filter(days_in_placement &gt;= 0) %&gt;%
   arrange(caseNumber, first_placement_date) %&gt;%

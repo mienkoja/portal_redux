@@ -5,9 +5,16 @@ library(tidyverse)
 server <- function(input, output) {
   dat <- feather::read_feather("days_in_placement")
   
+  output$title <- renderText({
+    
+    paste0("Among visits which took place within ", input$upper_limit, " days")
+
+  })
+  
   output$plot1 <- renderPlot({
       if (is.null(input$jurisdiction)) {
         dat %>% 
+          filter(days_in_placement <= input$upper_limit) %>%
           ggplot(aes(days_in_placement)) + 
           geom_histogram()
       } else {

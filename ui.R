@@ -26,16 +26,26 @@ ui <- dashboardPage(
                               ,menuSubItem(icon = NULL
                                            ,checkboxGroupInput(inputId = "jurisdiction"
                                                                ,label = "First Visit Location"
+                                                               ,selected = "Spokane"
                                                                ,choices = unique(as.character(dat$jurisdiction))
                                            )
                               )
                      )
+                     ,menuItem("Upper Limit"
+                               ,icon = icon("hand-stop-o")
+                               ,menuSubItem(icon = NULL
+                                            ,sliderInput(inputId = "upper_limit"
+                                                         ,label = "Maximum Days in Placement"
+                                                         ,min = 0
+                                                         ,max = max(dat$days_in_placement)
+                                                         ,value = 90)
+                               )
                    )
-  )
+  ))
   ,dashboardBody(
            fluidRow(
-             box(tags$div(h1("Days to First Visit"), id="data-title")
-                 ,tags$div(h4("From Original Placement Date"), id="data-title")
+             box(tags$div(h1("Days to First Visit from Original Placement Date"), id="data-title")
+                 ,tags$div(h4(textOutput("title")), id="data-title")
                  ,width = 12)
            )
            ,fluidRow(

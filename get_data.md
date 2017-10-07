@@ -1,31 +1,16 @@
 # Measuring Days to First Visit from Original Placement Date
 
-
-
 The following code makes use of data from the `oliver_replica` database to extract the average number of days between a child's original placement date, and the date of their first visit.
 
-These data are almost certainly an overestimate of the **true** average value. The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties. 
+These data are almost certainly an overestimate of the **true** average value. The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties. Values less than 90 days should also be considered more trustworthy than values greater than 90 days. As such, the default values for the tool are for periods less than 90 days and in Spokane County. 
 
+The assumption of this script is that there is a connection named `conn` to the `oliver_replica` database. 
 
-```r
-# assumes a connection to oliver_replica named "con"
-source('~/r_repos/ssdx/R/establish_and_load_db_con.R')
-library(lubridate)
-library(tidyverse)
-library(DBI)
-
-#setwd("~/r_repos/portal_redux")
-
-establish_and_load_db_con()
-
-conn <- con 
-
-DBI::dbSendQuery(conn, dbplyr::build_sql("SET search_path TO ", 'staging'))
-```
 
 ```
 ## <PostgreSQLResult>
 ```
+
 
 ```r
 service_referrals <- tbl(conn, sql("SELECT *
@@ -37,7 +22,7 @@ service_referrals <- tbl(conn, sql("SELECT *
          !is.na(child_placement_date)) %>%
   as_data_frame() %>%
   mutate(child_placement_date = as.Date(child_placement_date, format = "%m/%d/%Y")) %>%
-  group_by(caseNumber) %>%
+  group_by(caseNumber, id) %>%
   summarise(first_placement_date = min(child_placement_date)) %>%
   filter(lubridate::year(first_placement_date) >= 2016)
 
@@ -46,7 +31,7 @@ visit_reports <- tbl(conn, "VisitReports") %>%
          is.na(deletedAt),
          !is.na(serviceReferralId),
          !is.na(date)) %>%
-  group_by(caseNumber) %>%
+  group_by(caseNumber, serviceReferralId) %>%
   summarise(first_visit_date = min(date)) %>%
   as_data_frame()
 
@@ -60,7 +45,7 @@ visit_reports_all <- tbl(conn, "VisitReports") %>%
 
 first_visit_reports <- inner_join(service_referrals
            ,visit_reports
-           ,by = c("caseNumber")) %>%
+           ,by = c("caseNumber", "id" = "serviceReferralId")) %>%
   mutate(days_in_placement = as.numeric(first_visit_date - first_placement_date)) %>%
   filter(days_in_placement >= 0) %>%
   arrange(caseNumber, first_placement_date) %>%
