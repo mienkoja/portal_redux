@@ -5,7 +5,7 @@ library(tidyverse)
 server <- function(input, output) {
   dat <- feather::read_feather("days_in_placement")
   
-  dat <- reactive({
+  dat_filter <- reactive({
     
     if (is.null(input$jurisdiction)) {
       dat %>% 
@@ -19,49 +19,65 @@ server <- function(input, output) {
   
   output$title <- renderText({
     
-    paste0("Among visits which took place within ", input$upper_limit, " days")
+    if (is.null(input$jurisdiction)) {
+      paste0("Among visits which took place within "
+             ,input$upper_limit
+             ," days, in All Counties")
+    } else if (length(input$jurisdiction) == 1) {
+      paste0("Among visits which took place within "
+             ,input$upper_limit
+             ," days, in "
+             ,input$jurisdiction
+             ," County")
+    } else if (length(input$jurisdiction) == 2) {
+      paste0("Among visits which took place within "
+             ,input$upper_limit
+             ," days, in "
+             ,paste0(input$jurisdiction, collapse=" and ")
+             ," Counties")
+    } else {
+      valid_vector <- na.omit(input$jurisdiction)
+      vector_end <- length(valid_vector)
+      vector_penultimate <- vector_end - 1
+      paste0("Among visits which took place within "
+             ,input$upper_limit
+             ," days, in "
+             ,paste0(valid_vector[1:vector_penultimate], collapse=", ")
+             ,", and "
+             ,valid_vector[vector_end]
+             ," Counties"
+             )
+    }
+    
+
 
   })
   
   output$plot1 <- renderPlot({
-      # if (is.null(input$jurisdiction)) {
-      #   dat %>% 
-      #     filter(days_in_placement <= input$upper_limit) %>%
-      #     ggplot(aes(days_in_placement)) + 
-      #     geom_histogram()
-      # } else {
-      #   dat %>% 
-      #     filter(jurisdiction %in% input$jurisdiction) %>%
-    dat %>%
+
+    dat_update <- dat_filter()
+    dat_update %>%
           ggplot(aes(days_in_placement)) + 
           geom_histogram()        
       
   })
   
   output$mean <- renderText({
-    if (is.null(input$jurisdiction)) {
-      paste0("Average Days to First Visit: ", round(mean(dat$days_in_placement), 2))
-    } else {
-      filtered_dat <- dat %>% filter(jurisdiction %in% input$jurisdiction)
-      paste0("Average Days to First Visit: ", round(mean(dat$days_in_placement), 2))
-    }
+    dat_update <- dat_filter()
+    paste0("Average Days to First Visit: ", round(mean(dat_update$days_in_placement), 2))
   })
   
   output$median <- renderUI({
-    if (is.null(input$jurisdiction)) {
-      paste0("Median Days to First Visit: ", median(dat$days_in_placement))
-    } else {
-      filtered_dat <- dat %>% filter(jurisdiction %in% input$jurisdiction)
-      paste0("Median Days to First Visit: ", median(filtered_dat$days_in_placement))
-    }
+    dat_update <- dat_filter()
+    paste0("Median Days to First Visit: ", round(median(dat_update$days_in_placement), 2))
   })
   
   output$table1 <- renderDataTable({
-    if (is.null(input$jurisdiction)) {
-      dat
-    } else {
-      dat %>% filter(jurisdiction %in% input$jurisdiction)
-    }
+    
+    dat_update <- dat_filter()
+    
+    dat_update %>% filter(jurisdiction %in% input$jurisdiction)
+    
   })  
   
 }
