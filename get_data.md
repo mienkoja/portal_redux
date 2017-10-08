@@ -71,6 +71,7 @@ first_visit_and_locale <- inner_join(visit_reports_all
          ,jurisdiction = ifelse(jurisdiction == "Kittittas", "Kittitas", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "SNohomish", "Snohomish", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "Spokane County", "Spokane", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "Spokane county", "Spokane", jurisdiction)         
          ,jurisdiction = ifelse(jurisdiction == "Lynnwood", "Snohomish", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "AdamsCounty", "Adams", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "Moses lake", "Grant", jurisdiction)
@@ -79,7 +80,9 @@ first_visit_and_locale <- inner_join(visit_reports_all
          ,jurisdiction = ifelse(jurisdiction == "Pend O'Reille", "Pend Oreille", jurisdiction)    
          ,jurisdiction = ifelse(jurisdiction == "king", "King", jurisdiction)  
          ,jurisdiction = ifelse(jurisdiction == "Fraklin", "Franklin", jurisdiction)    
-         ,jurisdiction = ifelse(jurisdiction == "SPOKANE", "Spokane", jurisdiction)   
+         ,jurisdiction = ifelse(jurisdiction == "SPOKANE", "Spokane", jurisdiction) 
+         ,jurisdiction = ifelse(jurisdiction == "spokane", "Spokane", jurisdiction)          
+         ,jurisdiction = ifelse(jurisdiction == "WA", "Unknown", jurisdiction)           
          ,jurisdiction = ifelse(is.na(jurisdiction), "Unknown", jurisdiction)   
   ) 
 

@@ -182,6 +182,7 @@ first_visit_and_locale &lt;- inner_join(visit_reports_all
          ,jurisdiction = ifelse(jurisdiction == &quot;Kittittas&quot;, &quot;Kittitas&quot;, jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == &quot;SNohomish&quot;, &quot;Snohomish&quot;, jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == &quot;Spokane County&quot;, &quot;Spokane&quot;, jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == &quot;Spokane county&quot;, &quot;Spokane&quot;, jurisdiction)         
          ,jurisdiction = ifelse(jurisdiction == &quot;Lynnwood&quot;, &quot;Snohomish&quot;, jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == &quot;AdamsCounty&quot;, &quot;Adams&quot;, jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == &quot;Moses lake&quot;, &quot;Grant&quot;, jurisdiction)
@@ -190,7 +191,9 @@ first_visit_and_locale &lt;- inner_join(visit_reports_all
          ,jurisdiction = ifelse(jurisdiction == &quot;Pend O'Reille&quot;, &quot;Pend Oreille&quot;, jurisdiction)    
          ,jurisdiction = ifelse(jurisdiction == &quot;king&quot;, &quot;King&quot;, jurisdiction)  
          ,jurisdiction = ifelse(jurisdiction == &quot;Fraklin&quot;, &quot;Franklin&quot;, jurisdiction)    
-         ,jurisdiction = ifelse(jurisdiction == &quot;SPOKANE&quot;, &quot;Spokane&quot;, jurisdiction)   
+         ,jurisdiction = ifelse(jurisdiction == &quot;SPOKANE&quot;, &quot;Spokane&quot;, jurisdiction) 
+         ,jurisdiction = ifelse(jurisdiction == &quot;spokane&quot;, &quot;Spokane&quot;, jurisdiction)          
+         ,jurisdiction = ifelse(jurisdiction == &quot;WA&quot;, &quot;Unknown&quot;, jurisdiction)           
          ,jurisdiction = ifelse(is.na(jurisdiction), &quot;Unknown&quot;, jurisdiction)   
   ) 
 
