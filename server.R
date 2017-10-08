@@ -5,6 +5,18 @@ library(tidyverse)
 server <- function(input, output) {
   dat <- feather::read_feather("days_in_placement")
   
+  dat <- reactive({
+    
+    if (is.null(input$jurisdiction)) {
+      dat %>% 
+        filter(days_in_placement <= input$upper_limit)
+    } else {
+      dat %>% 
+        filter(jurisdiction %in% input$jurisdiction
+               ,days_in_placement <= input$upper_limit)
+    }
+  })
+  
   output$title <- renderText({
     
     paste0("Among visits which took place within ", input$upper_limit, " days")
@@ -12,14 +24,15 @@ server <- function(input, output) {
   })
   
   output$plot1 <- renderPlot({
-      if (is.null(input$jurisdiction)) {
-        dat %>% 
-          filter(days_in_placement <= input$upper_limit) %>%
-          ggplot(aes(days_in_placement)) + 
-          geom_histogram()
-      } else {
-        dat %>% 
-          filter(jurisdiction %in% input$jurisdiction) %>%
+      # if (is.null(input$jurisdiction)) {
+      #   dat %>% 
+      #     filter(days_in_placement <= input$upper_limit) %>%
+      #     ggplot(aes(days_in_placement)) + 
+      #     geom_histogram()
+      # } else {
+      #   dat %>% 
+      #     filter(jurisdiction %in% input$jurisdiction) %>%
+    dat %>%
           ggplot(aes(days_in_placement)) + 
           geom_histogram()        
       }
