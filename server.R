@@ -35,7 +35,7 @@ server <- function(input, output) {
     dat %>%
           ggplot(aes(days_in_placement)) + 
           geom_histogram()        
-      }
+      
   })
   
   output$mean <- renderText({
