@@ -41,6 +41,16 @@ ui <- dashboardPage(
                                                          ,value = 90)
                                )
                    )
+                   ,menuItem("Graph Settings"
+                             ,icon = icon("cogs")
+                             ,menuSubItem(icon = NULL
+                                          ,numericInput(inputId = "bin_width"
+                                                       ,label = "The number of days in each histogram bar"
+                                                       ,min = 1
+                                                       ,max = max(dat$days_in_placement)
+                                                       ,value = 7)
+                             )
+                   )                   
   ))
   ,dashboardBody(
            fluidRow(

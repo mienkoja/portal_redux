@@ -1,6 +1,7 @@
 library(shinydashboard)
 library(ggplot2)
 library(tidyverse)
+library(ggthemes)
 
 server <- function(input, output) {
   dat <- feather::read_feather("days_in_placement")
@@ -48,8 +49,6 @@ server <- function(input, output) {
              ," Counties"
              )
     }
-    
-
 
   })
   
@@ -58,8 +57,10 @@ server <- function(input, output) {
     dat_update <- dat_filter()
     dat_update %>%
           ggplot(aes(days_in_placement)) + 
-          geom_histogram()        
-      
+          geom_histogram(binwidth = input$bin_width) + 
+          theme_hc() + 
+          theme(text = element_text(size=20))
+
   })
   
   output$mean <- renderText({
