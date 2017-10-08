@@ -44,33 +44,39 @@ ui <- dashboardPage(
   ))
   ,dashboardBody(
            fluidRow(
-             style = "border-bottom: 1px; border-bottom-style: solid;border-bottom-color: #565656"
-             ,box(tags$div(h1("Days to First Visit from Original Placement Date"), id="data-title")
+             #style = "border-bottom: 1px; border-bottom-style: solid;border-bottom-color: #DDDDDD"
+             box(tags$div(h1("Days to First Visit from Original Placement Date"), id="data-title")
                  ,tags$div(h4(textOutput("title")), id="data-title")
                  ,width = 12)
            )
            ,fluidRow(
              # Boxes need to be put in a row (or column)
-             style = "background-color: #ffffff;"
-             ,tabsetPanel(
+             tabsetPanel(
+               
                tabPanel("GRAPH", icon = icon("line-chart")
-                        ,style="padding-left: 20px;padding-right: 20px;padding-top: 20px;padding-bottom: 20px;"       
+                        ,style="background-color: #ffffff; 
+                                padding-left: 20px;
+                                padding-right: 20px;
+                                padding-top: 20px;
+                                padding-bottom: 20px;"       
                         ,plotOutput("plot1")
                         ,uiOutput("mean")
                         ,uiOutput("median")
                )
                ,tabPanel("TABLE", icon = icon("table")                       
-                         ,style="padding-left: 20px;"
-                         ,style="padding-right: 20px;"
-                         ,style="padding-top: 20px;" 
-                         ,style="padding-bottom: 20px;"                             
+                         ,style="background-color: #ffffff; 
+                                 padding-left: 20px;
+                                 padding-right: 20px;
+                                 padding-top: 20px;
+                                 padding-bottom: 20px;"                              
                          ,dataTableOutput("table1"))
                #,tabPanel("DOWNLOAD", icon = icon("download"))
                ,tabPanel("INFO", icon = icon("info-circle")                       
-                         ,style="padding-left: 20px;"
-                         ,style="padding-right: 20px;"
-                         ,style="padding-top: 20px;" 
-                         ,style="padding-bottom: 20px;"                          
+                         ,style="background-color: #ffffff; 
+                                 padding-left: 20px;
+                                 padding-right: 20px;
+                                 padding-top: 20px;
+                                 padding-bottom: 20px;"                          
                          ,includeMarkdown("get_data.md"))
                )
             )
