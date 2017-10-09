@@ -57,9 +57,12 @@ server <- function(input, output) {
     dat_update <- dat_filter()
     dat_update %>%
           ggplot(aes(days_in_placement)) + 
-          geom_histogram(binwidth = input$bin_width) + 
+          geom_histogram(aes(y=..count../sum(..count..)), binwidth = input$bin_width) + 
+          xlab("Days in Placement") + 
+          ylab("Percentage of Cases") + 
+          scale_y_continuous(labels = scales::percent) + 
           theme_hc() + 
-          theme(text = element_text(size=20))
+          theme(text = element_text(size=18))
 
   })
   
@@ -77,7 +80,10 @@ server <- function(input, output) {
     
     dat_update <- dat_filter()
     
-    dat_update %>% filter(jurisdiction %in% input$jurisdiction)
+    dat_update %>% 
+      filter(jurisdiction %in% input$jurisdiction) %>%
+      select(`First Visit Location` = jurisdiction
+             ,`Days in Placement` = days_in_placement)
     
   })  
   

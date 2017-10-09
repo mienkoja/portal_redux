@@ -1,6 +1,9 @@
 library(shinydashboard)
 
 dat <- feather::read_feather("days_in_placement")
+dat_counties <- unique(as.character(dat$jurisdiction))
+dat_counties_order <- order(dat_counties)
+dat_counties_ordered <- dat_counties[dat_counties_order]
 
 ui <- dashboardPage(
   dashboardHeader(#title = ""
@@ -27,14 +30,14 @@ ui <- dashboardPage(
                                            ,checkboxGroupInput(inputId = "jurisdiction"
                                                                ,label = "First Visit Location"
                                                                ,selected = "Spokane"
-                                                               ,choices = unique(as.character(dat$jurisdiction))
+                                                               ,choices = dat_counties_ordered
                                            )
                               )
                      )
                      ,menuItem("Upper Limit"
                                ,icon = icon("hand-stop-o")
                                ,menuSubItem(icon = NULL
-                                            ,sliderInput(inputId = "upper_limit"
+                                            ,numericInput(inputId = "upper_limit"
                                                          ,label = "Maximum Days in Placement"
                                                          ,min = 0
                                                          ,max = max(dat$days_in_placement)
