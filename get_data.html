@@ -121,7 +121,17 @@ $(document).ready(function () {
 
 
 <p>The following code makes use of data from the <code>oliver_replica</code> database to extract the average number of days between a child’s original placement date, and the date of their first visit.</p>
-<p>These data are almost certainly an overestimate of the <strong>true</strong> average value. The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties. Values less than 90 days should also be considered more trustworthy than values greater than 90 days. As such, the default values for the tool are for periods less than 90 days and in Spokane County.</p>
+<div id="default-filter-values" class="section level2">
+<h2>Default Filter Values</h2>
+<p>These data are almost certainly an overestimate of the <strong>true</strong> average value.</p>
+<div id="setting-location-to-spokane" class="section level3">
+<h3>Setting Location to Spokane</h3>
+<p>The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties. This is because providers within FIN have been using Oliver for longer than providers in other parts of the state. Individuals within this geographic area also appear to be using Oliver more consistently than providers in other parts of the state.</p>
+</div>
+<div id="setting-days-to-90" class="section level3">
+<h3>Setting Days to 90</h3>
+<p>It may take months, or even years, after the start of a dependency episode for parents to become involved in a case. For example, one parent may be estranged and not even aware of the dependency case until the state locates them and serves them with court paperwork.</p>
+<p>Values less than 90 days should also be considered more trustworthy than values greater than 90 days. As such, the default values for the tool are for periods less than 90 days and in Spokane County.</p>
 <p>The assumption of this script is that there is a connection named <code>conn</code> to the <code>oliver_replica</code> database.</p>
 <pre><code>## &lt;PostgreSQLResult&gt;</code></pre>
 <pre class="r"><code>service_referrals &lt;- tbl(conn, sql(&quot;SELECT *
@@ -167,6 +177,7 @@ first_visit_and_locale &lt;- inner_join(visit_reports_all
            ,first_visit_reports, by = c(&quot;date&quot; = &quot;first_visit_date&quot;, &quot;caseNumber&quot;)) %&gt;%
   select(days_in_placement, jurisdiction = visitLocationCounty) %&gt;%
   mutate(jurisdiction = ifelse(jurisdiction == &quot;Curry/Roosevelt&quot;, &quot;Klickitat&quot;, jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == &quot;99341&quot;, &quot;Adams&quot;, jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == &quot;grant&quot;, &quot;Grant&quot;, jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == &quot;Benton County&quot;, &quot;Benton&quot;, jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == &quot;Stevens County&quot;, &quot;Stevens&quot;, jurisdiction)
@@ -211,6 +222,8 @@ first_visit_and_locale &lt;- inner_join(visit_reports_all
 
 first_visit_and_locale %&gt;% feather::write_feather(&quot;days_in_placement&quot;)</code></pre>
 <p>The file save here, is used to power the rest of the shiny application. A link to the entire repo is as follows: <a href="https://github.com/mienkoja/portal_redux" class="uri">https://github.com/mienkoja/portal_redux</a></p>
+</div>
+</div>
 
 
 

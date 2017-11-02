@@ -81,6 +81,7 @@ first_visit_and_locale <- inner_join(visit_reports_all
            ,first_visit_reports, by = c("date" = "first_visit_date", "caseNumber")) %>%
   select(days_in_placement, jurisdiction = visitLocationCounty) %>%
   mutate(jurisdiction = ifelse(jurisdiction == "Curry/Roosevelt", "Klickitat", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "99341", "Adams", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "grant", "Grant", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "Benton County", "Benton", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "Stevens County", "Stevens", jurisdiction)

@@ -3,8 +3,8 @@ title: portal_redux
 account: pocdata
 server: shinyapps.io
 appId: 222739
-bundleId: 1015012
+bundleId: 1056620
 url: https://pocdata.shinyapps.io/portal_redux/
-when: 1507337313.89068
+when: 1509647197.05506
 asMultiple: FALSE
 asStatic: FALSE

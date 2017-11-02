@@ -2,7 +2,19 @@
 
 The following code makes use of data from the `oliver_replica` database to extract the average number of days between a child's original placement date, and the date of their first visit.
 
-These data are almost certainly an overestimate of the **true** average value. The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties. Values less than 90 days should also be considered more trustworthy than values greater than 90 days. As such, the default values for the tool are for periods less than 90 days and in Spokane County. 
+## Default Filter Values
+
+These data are almost certainly an overestimate of the **true** average value. 
+
+### Setting Location to Spokane
+
+The numbers in Spokane County (and other counties in the Family Impact Network (FIN)) should be considered more trustworthy than numbers in other counties. This is because providers within FIN have been using Oliver for longer than providers in other parts of the state. Individuals within this geographic area also appear to be using Oliver more consistently than providers in other parts of the state. 
+
+### Setting Days to 90
+
+It may take months, or even years, after the start of a dependency episode for parents to become involved in a case. For example, one parent may be estranged and not even aware of the dependency case until the state locates them and serves them with court paperwork. 
+
+Values less than 90 days should also be considered more trustworthy than values greater than 90 days. As such, the default values for the tool are for periods less than 90 days and in Spokane County. 
 
 The assumption of this script is that there is a connection named `conn` to the `oliver_replica` database. 
 
@@ -56,6 +68,7 @@ first_visit_and_locale <- inner_join(visit_reports_all
            ,first_visit_reports, by = c("date" = "first_visit_date", "caseNumber")) %>%
   select(days_in_placement, jurisdiction = visitLocationCounty) %>%
   mutate(jurisdiction = ifelse(jurisdiction == "Curry/Roosevelt", "Klickitat", jurisdiction)
+         ,jurisdiction = ifelse(jurisdiction == "99341", "Adams", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "grant", "Grant", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "Benton County", "Benton", jurisdiction)
          ,jurisdiction = ifelse(jurisdiction == "Stevens County", "Stevens", jurisdiction)
