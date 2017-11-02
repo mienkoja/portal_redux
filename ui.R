@@ -11,15 +11,18 @@ ui <- dashboardPage(
                                ,tags$img(src='logo.png')
                                )
                   #Set height of dashboardHeader
-                  ,tags$li(class = "dropdown"
-                           ,tags$style(".main-header {max-height: 57px}")
-                           ,tags$style(".main-header .logo {height: 57px}")
-                           )
+                  # ,tags$li(class = "dropdown",
+                  #         tags$style(".main-header {max-height: 57px}"),
+                  #         tags$style(".main-header .logo {height: 57px;}")
+                  #         #tags$style(".sidebar-toggle {height: 57px; padding-top: 1px !important;}"),
+                  #         #tags$style(".navbar {min-height:57px !important}")
+                  # )                   
+                  # 
                   ,titleWidth = 340
                   )
   ,dashboardSidebar(
-    tags$style(".left-side, .main-sidebar {padding-top: 57px}")
-    ,tags$head(tags$link(rel = "stylesheet"
+    #tags$style(".left-side, .main-sidebar {padding-top: 57px}")
+    tags$head(tags$link(rel = "stylesheet"
                                         ,type = "text/css"
                                         ,href = "poc_style.css")
                               )
