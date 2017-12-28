@@ -6,7 +6,7 @@ dat_counties_order <- order(dat_counties)
 dat_counties_ordered <- dat_counties[dat_counties_order]
 
 ui <- dashboardPage(
-  dashboardHeader(#title = ""
+  dashboardHeader(#title = ""#
                   title = tags$a(href='http://www.pocdata.org/'
                                ,tags$img(src='logo.png')
                                )
